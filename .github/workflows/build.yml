@@ -1,0 +1,51 @@
+name: Build
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "12"
+
+      - run: yarn
+
+  test:
+    needs: compile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.10.0
+        with:
+            mongodb-version: '7.0'
+            mongodb-username: admin
+            mongodb-password: admin
+            mongodb-db: neolime
+
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '12'
+
+      - run: yarn test
+
+  publish:
+    needs: [compile, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '12'
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: yarn install --frozen-lockfile
+
+      - run: yarn publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

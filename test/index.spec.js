@@ -3,7 +3,7 @@
 var mongoose = require('mongoose');
 
 // Connect
-mongoose.connect('mongodb://127.0.0.1:27017/mongoose-unique-validator').catch(err => {
+mongoose.connect('mongodb://admin:admin@localhost:27017').catch(err => {
     // eslint-disable-next-line no-console
     console.error(err);
     throw err;
